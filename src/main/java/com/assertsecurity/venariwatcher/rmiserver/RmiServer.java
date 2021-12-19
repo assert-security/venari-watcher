@@ -232,12 +232,12 @@ public class RmiServer implements Runnable {
         }
 
         String object = (String) ois.readObject();
-        System.out.println(DateTimeUtils.getDateTimeString() + " [RMI Server]  >> Is RMI.lookup call for " + object + " " + method);
 
         try
         {
             UUID id = UUID.fromString(object);
             PayloadMapper.Set(id);
+            System.out.println(DateTimeUtils.getDateTimeString() + " [RMI Server]  >> Payload received " + id.toString());
         }
         catch (IllegalArgumentException e)
         {
