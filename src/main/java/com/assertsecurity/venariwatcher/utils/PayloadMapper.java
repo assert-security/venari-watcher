@@ -36,6 +36,16 @@ public class PayloadMapper {
         payloads.put(id, LocalDateTime.now());
     }
 
+    public static synchronized boolean Remove(UUID id)
+    {
+        if (payloads.containsKey(id))
+        {
+            payloads.remove(id);
+            return true;
+        }
+        return false;
+    }
+
     public static synchronized boolean Has(UUID id)
     {
         if (payloads.containsKey(id))

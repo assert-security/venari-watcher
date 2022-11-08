@@ -85,6 +85,14 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->
+        <dependency>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
     </dependencies>
 
 

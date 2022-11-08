@@ -13,7 +13,7 @@ docker build -t venari-watcher .
 
 # Run Docker Image
 ````
-docker run --rm -it -p 3001:3001 -p 3002:3002 -p 3003:3003 venari-watcher
+docker run --rm -it -p 80:80 -p 3002:3002 -p 3003:3003 venari-watcher
 ````
 
 

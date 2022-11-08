@@ -1,5 +1,6 @@
 package com.assertsecurity.venariwatcher.httpserver;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.UUID;
@@ -37,6 +38,9 @@ public class HttpServer implements Runnable{
         _server.setHandler(handler);
 
         handler.addServletWithMapping(VerifyPayloadServlet.class, "/verify/*");
+        handler.addServletWithMapping(FixPayloadServlet.class, "/fix/*");
+        handler.addServletWithMapping(BatchVerifyPayloadServlet.class, "/batchverify");
+        handler.addServletWithMapping(SetPayloadServlet.class, "/set/*");
         try {
             System.out.println(DateTimeUtils.getDateTimeString() + " [HTTP Server]>> Listening on " + _httpAddr + ":" + _httpPort);
             _server.start();
@@ -48,15 +52,119 @@ public class HttpServer implements Runnable{
 
     }
 
-    @SuppressWarnings("serial")
-    public static class VerifyPayloadServlet extends HttpServlet {
-        public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-
-            String filename = request.getRequestURI().substring(1);
-            filename = filename.replace("verify/", "");
+    public static class BatchVerifyPayloadServlet extends HttpServlet {
+        public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+            StringBuilder sb = new StringBuilder();
+            BufferedReader reader = request.getReader();
             boolean found = false;
             try 
             {
+                String line;
+                while ((line = reader.readLine()) != null) 
+                {
+                    UUID id = UUID.fromString(line);
+                    if (PayloadMapper.Has(id))
+                    {
+                        sb.append(id.toString() + "\n");
+                        found = true;
+                    }
+                }
+            } 
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
+                found = false;
+            }
+            finally 
+            {
+                reader.close();
+            }
+            if (found)
+            {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("text/plain"); 
+                PrintWriter out = response.getWriter(); 
+                out.println(sb.toString()); 
+            }
+            else
+            {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setContentType("text/plain"); 
+                PrintWriter out = response.getWriter(); 
+                out.println("Not Found"); 
+            }
+        }
+    }
+
+    public static class FixPayloadServlet extends HttpServlet {
+        public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+
+            String filename = request.getRequestURI().substring(1);
+            boolean found = false;
+            try 
+            {
+                filename = filename.replace("fix/", "");
+                UUID id = UUID.fromString(filename);
+                if (PayloadMapper.Remove(id))
+                {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.setContentType("text/plain"); 
+                    PrintWriter out = response.getWriter(); 
+                    out.println(String.format("Fixed %s",id)); 
+                    found = true;
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
+            }
+            if (!found)
+            {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setContentType("text/plain"); 
+                PrintWriter out = response.getWriter(); 
+                out.println("Not Found"); 
+            }
+        }
+    }
+
+    public static class SetPayloadServlet extends HttpServlet {
+        public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+
+            String filename = request.getRequestURI().substring(1);
+            boolean found = false;
+            try 
+            {
+                filename = filename.replace("set/", "");
+                UUID id = UUID.fromString(filename);
+                PayloadMapper.Set(id);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("text/plain"); 
+                PrintWriter out = response.getWriter(); 
+                out.println(String.format("Set %s",id)); 
+                found = true;
+        }
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
+            }
+            if (!found)
+            {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setContentType("text/plain"); 
+                PrintWriter out = response.getWriter(); 
+                out.println("Not Set"); 
+            }
+        }
+    }
+
+    public static class VerifyPayloadServlet extends HttpServlet {
+        public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+            String filename = request.getRequestURI().substring(1);
+            boolean found = false;
+            try 
+            {
+                filename = filename.replace("verify/", "");
                 UUID id = UUID.fromString(filename);
                 if (PayloadMapper.Has(id))
                 {
@@ -78,7 +186,6 @@ public class HttpServer implements Runnable{
                 PrintWriter out = response.getWriter(); 
                 out.println("Not Found"); 
             }
-            
         }
     }
 
