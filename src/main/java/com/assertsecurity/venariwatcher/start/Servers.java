@@ -4,6 +4,7 @@ import com.assertsecurity.venariwatcher.dnsserver.DnsServer;
 import com.assertsecurity.venariwatcher.httpserver.HttpServer;
 import com.assertsecurity.venariwatcher.ldapserver.LdapServer;
 import com.assertsecurity.venariwatcher.rmiserver.RmiServer;
+import com.assertsecurity.venariwatcher.smtpserver.SmtpServer;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,12 +21,14 @@ public class Servers {
 	private static int deprecatedHttpPort = 3001;
 	private static int ldapPort = 3002;
 	private static int rmiPort = 3003;
+	private static int smtpPort = 25;
 
 	private HttpServer _httpServer;
 	private HttpServer _deprecatedHttpServer;
 	private LdapServer _ldapServer;
 	private RmiServer _rmiServer;
 	private DnsServer _dnsServer;
+	private SmtpServer _smtpServer;
 
     public static void main(String[] args) throws Exception {
 		CommandLineParser parser = new DefaultParser();
@@ -80,12 +83,22 @@ public class Servers {
 			}
 		}
 
+		if (cmd.hasOption("s")) {
+			try {
+				smtpPort = Integer.parseInt(cmd.getOptionValue('s'));
+			} catch (Exception e) {
+				System.err.println("Format to change default values is PORT");
+				System.exit(1);
+			}
+		}
+
         Servers servers = new Servers();
 		servers._httpServer = new HttpServer(ipAddress, httpPort);
 		servers._deprecatedHttpServer = new HttpServer(ipAddress, deprecatedHttpPort);
 		servers._ldapServer = new LdapServer(ipAddress, ldapPort);
 		servers._rmiServer = new RmiServer(ipAddress, rmiPort);
 		servers._dnsServer = new DnsServer(dnsPort);
+		servers._smtpServer = new SmtpServer(ipAddress, smtpPort);
 
 		System.out.println("----------------------------Server Log----------------------------");
 
@@ -97,13 +110,15 @@ public class Servers {
 
 		Thread threadRmi = new Thread(servers._rmiServer);
 		threadRmi.start();
-
+		
 		Thread threadDeprecatedHttp = new Thread(servers._deprecatedHttpServer);
 		threadDeprecatedHttp.start();
 
 		Thread threadDns = new Thread(servers._dnsServer);
 		threadDns.start();
 
+		Thread threadSmtp = new Thread(servers._smtpServer);
+		threadSmtp.start();
 
     }
 
@@ -112,12 +127,18 @@ public class Servers {
 
 	public static Options cmdlineOptions() {
 		Options opts = new Options();
-		Option http_addr = new Option("h", true, "The address of HTTP server (ip or domain). Format: IP:PORT");
-		opts.addOption(http_addr);
-		Option rmi_addr = new Option("r", true, "The address of RMI server (ip or domain). Format: IP:PORT");
-		opts.addOption(rmi_addr);
-		Option ldap_addr = new Option("l", true, "The address of LDAP server (ip or domain). Format: IP:PORT");
-		opts.addOption(ldap_addr);
+		Option address = new Option("a", true, "The address of the server (ip or domain). Format: IPADDRESS");
+		opts.addOption(address);
+		Option http_port = new Option("h", true, "The port of HTTP server. Format: PORT");
+		opts.addOption(http_port);
+		Option rmi_port = new Option("r", true, "The port of RMI server. Format: PORT");
+		opts.addOption(rmi_port);
+		Option ldap_port = new Option("l", true, "The port of LDAP server. Format: PORT");
+		opts.addOption(ldap_port);
+		Option dns_port = new Option("d", true, "The port of DNS server. Format: PORT");
+		opts.addOption(dns_port);
+		Option smtp_port = new Option("s", true, "The port of SMTP server. Format: PORT");
+		opts.addOption(smtp_port);
 		Option help = new Option("?", true, "Display the help menu.");
 		opts.addOption(help);
 		return opts;

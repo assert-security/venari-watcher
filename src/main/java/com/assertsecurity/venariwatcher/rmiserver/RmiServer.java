@@ -26,9 +26,6 @@ import javax.xml.crypto.MarshalException;
 import com.assertsecurity.venariwatcher.utils.DateTimeUtils;
 import com.assertsecurity.venariwatcher.utils.PayloadMapper;
 
-@SuppressWarnings ( {
-    "restriction"
-} )
 public class RmiServer implements Runnable {
     
     private int _port;
