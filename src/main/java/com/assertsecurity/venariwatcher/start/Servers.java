@@ -18,10 +18,9 @@ public class Servers {
 	private static String ipAddress = "0.0.0.0";
 	private static int httpPort = 80;
 	private static int dnsPort = 53;
-	private static int deprecatedHttpPort = 3001;
 	private static int ldapPort = 3002;
 	private static int rmiPort = 3003;
-	private static int smtpPort = 25;
+	private static int smtpPort = 587;
 
 	private HttpServer _httpServer;
 	private HttpServer _deprecatedHttpServer;
@@ -94,7 +93,6 @@ public class Servers {
 
         Servers servers = new Servers();
 		servers._httpServer = new HttpServer(ipAddress, httpPort);
-		servers._deprecatedHttpServer = new HttpServer(ipAddress, deprecatedHttpPort);
 		servers._ldapServer = new LdapServer(ipAddress, ldapPort);
 		servers._rmiServer = new RmiServer(ipAddress, rmiPort);
 		servers._dnsServer = new DnsServer(dnsPort);

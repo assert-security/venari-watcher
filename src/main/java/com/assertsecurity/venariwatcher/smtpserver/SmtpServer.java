@@ -41,7 +41,7 @@ public class SmtpServer implements Runnable {
     @Override
     public void run () {
         try {
-			System.out.println(DateTimeUtils.getDateTimeString() + " [RMI Server] >> Listening on " + _ipAddress + ":" + _port);
+			System.out.println(DateTimeUtils.getDateTimeString() + " [SMTP Server] >> Listening on " + _ipAddress + ":" + _port);
             Socket s = null;
             try {
                 while ( !this._exit && ( s = this._ss.accept() ) != null ) {
@@ -91,7 +91,7 @@ public class SmtpServer implements Runnable {
                         e.printStackTrace(System.err);
                     }
                     finally {
-                        System.out.println(DateTimeUtils.getDateTimeString() + " [RMI Server]  >> Closing connection");
+                        System.out.println(DateTimeUtils.getDateTimeString() + " [SMTP Server]  >> Closing connection");
                         s.close();
                     }
                 }
